@@ -88,6 +88,8 @@ ORDER BY 2
 
 更细节的更新待续…
 
+`{awsuser=arwdRxtD/awsuser,"group test_group=r/awsuser"}`
+
 ### 查询组对外部表的权限
 
 待续
