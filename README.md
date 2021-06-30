@@ -1,6 +1,33 @@
 # Redshift 常用 SQL
 
-Redshift 是虽然是基于 PostgreSQL 没研发，但有一些修改，而且部分常用的权限查询语句没有简化版，所以这里列一下常用的 SQL 语句。
+Redshift 是虽然是基于 PostgreSQL 没研发，但有一些修改，而且部分常用的原信息查询语句没有简化版，所以这里列一下常用的 SQL 语句。
+
+## 查询外部表
+
+### 查询有哪些外部 Schema 和表
+
+查询有哪些外部 Schema。
+
+```sql
+SELECT * 
+FROM SVV_EXTERNAL_SCHEMAS;
+```
+
+查询有哪些外部表。
+
+```sql
+SELECT schemaname, tablename 
+FROM SVV_EXTERNAL_TABLES
+WHERE schemaname = 'apg_tpch';
+```
+
+还有这样一些表，看名字可以大概知道内容。
+
+```sql
+SVV_EXTERNAL_COLUMNS
+SVV_EXTERNAL_DATABASES
+SVV_EXTERNAL_PARTITIONS
+```
 
 ## 查询用户权限
 
@@ -10,7 +37,7 @@ Redshift 用户相关的权限需要按 Schema、Table、External Table 分别�
 
 Schema 权限查询使用 `HAS_SCHEMA_PRIVILEGE()` 函数，我们把用户（`pg_user`）列出来，然后把所有的内部 Schema（`pg_tables`）列出来，做一个十字联结，这样就能查出所有用户在所有表上的权限。
 
-```
+```sql
 SELECT
   u.usename, s.schemaname,
   HAS_SCHEMA_PRIVILEGE(u.usename,s.schemaname,'CREATE') AS user_has_create_permission,
@@ -24,7 +51,7 @@ CROSS JOIN
 
 ### 查询外部 Schema 权限
 
-```
+```sql
 SELECT
   u.usename, s.schemaname,
   HAS_SCHEMA_PRIVILEGE(u.usename,s.schemaname,'USAGE') AS user_has_usage_permission
@@ -41,7 +68,7 @@ CROSS JOIN
 
 ### 查询组对表的权限
 
-```
+```sql
 SELECT relacl, 
   'GRANT ' || SUBSTRING(
        CASE WHEN CHARINDEX('r',split_part(split_part(array_to_string(relacl, '|'),pu.groname,2 ) ,'/',1)) > 0 THEN ',SELECT ' ELSE '' END 
